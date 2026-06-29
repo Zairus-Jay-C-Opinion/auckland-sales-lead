@@ -1266,8 +1266,6 @@
     formData.append('file', selectedImageFile);
     formData.append('upload_preset', CLOUDINARY_PRESET);
     formData.append('folder', 'auckland-sales');
-    formData.append('public_id', productId);
-    formData.append('overwrite', 'true');
     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
       method: 'POST',
       body: formData,
