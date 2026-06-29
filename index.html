@@ -1272,8 +1272,8 @@
       method: 'POST',
       body: formData,
     });
-    if (!res.ok) throw new Error('Image upload failed — check Cloudinary config.');
     const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || `Upload failed (${res.status})`);
     return data.secure_url;
   }
 
