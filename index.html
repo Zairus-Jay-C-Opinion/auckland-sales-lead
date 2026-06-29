@@ -109,14 +109,6 @@
     .nav-item.active { background: var(--accent-dim); color: var(--accent); }
     .nav-item svg { flex-shrink: 0; }
 
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 16px 20px 0;
-      border-top: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.03em;
-    }
 
     /* ─── Main content ─────────────────────────────────────────────────── */
     .main { flex: 1; min-width: 0; }
@@ -125,7 +117,8 @@
     .view { display: none; padding: 44px 40px 80px; }
     .view.active { display: block; }
 
-    #view-dashboard { max-width: 900px; }
+    #view-dashboard { max-width: 900px; margin: 0 auto; }
+    #view-business  { max-width: 680px; margin: 0 auto; }
 
     .view-header { margin-bottom: 32px; }
 
@@ -452,7 +445,7 @@
     .table-msg-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
 
     /* ─── Business Info ─────────────────────────────────────────────────── */
-    .biz-form { max-width: 580px; }
+    .biz-form { width: 100%; }
 
     .biz-section {
       font-family: 'Space Grotesk', sans-serif;
@@ -503,9 +496,7 @@
         margin-bottom: 0;
       }
 
-      .sidebar-footer { display: none; }
-
-      .nav-list { flex-direction: row; padding: 0 0 0 14px; gap: 4px; }
+.nav-list { flex-direction: row; padding: 0 0 0 14px; gap: 4px; }
       .nav-item { font-size: 12.5px; padding: 7px 10px; }
 
       .view { padding: 28px 20px 60px; }
@@ -550,7 +541,6 @@
       </li>
     </ul>
 
-    <div class="sidebar-footer">Auckland Sales Ops · ZRS Dev</div>
   </nav>
 
   <!-- ── Main ───────────────────────────────────────────────────────── -->
