@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -321,8 +322,76 @@
     .feedback a { color: var(--accent); font-weight: 600; text-decoration: none; }
     .feedback a:hover { text-decoration: underline; }
 
-    /* ─── Dashboard footer ─────────────────────────────────────────────── */
-    .dash-footer { margin-top: 56px; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+    /* ─── Image upload zone ─────────────────────────────────────────────── */
+    .img-upload-zone {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      border: 1.5px dashed var(--border2);
+      border-radius: 8px;
+      background: var(--surface2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .img-upload-zone:hover { border-color: var(--accent); }
+    .img-upload-zone.has-image { border-style: solid; }
+
+    .img-upload-zone img { width: 100%; height: 100%; object-fit: cover; }
+
+    .img-upload-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    .img-upload-zone.has-image:hover .img-upload-overlay { opacity: 1; }
+
+    .img-upload-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .img-upload-prompt svg { opacity: 0.35; }
+    .img-upload-prompt-text { font-size: 12.5px; font-weight: 500; }
+    .img-upload-prompt-sub  { font-size: 11px; opacity: 0.6; }
+
+    /* ─── App-level footer ──────────────────────────────────────────────── */
+    .app-footer {
+      border-top: 1px solid var(--border);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .app-footer-brand { font-weight: 600; color: var(--muted2); }
+    .app-footer-right { margin-left: auto; }
+
+    @media (max-width: 768px) { .app-footer { padding: 18px 20px; } }
 
     /* ─── Product Catalog toolbar ──────────────────────────────────────── */
     .catalog-toolbar {
@@ -765,7 +834,6 @@
 
       </div>
 
-      <footer class="dash-footer">Auckland Sales Ops · Built by ZRS Dev</footer>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
@@ -782,9 +850,29 @@
       <div id="product-form-panel" class="product-form-panel">
         <div class="pf-title" id="pf-title">Add Product</div>
         <div class="form-grid">
+          <div class="form-field span-full">
+            <label class="form-label">Product Image</label>
+            <div class="img-upload-zone" id="img-upload-zone" onclick="document.getElementById('f-image').click()">
+              <div class="img-upload-prompt" id="img-upload-prompt">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span class="img-upload-prompt-text">Click to upload image</span>
+                <span class="img-upload-prompt-sub">JPG, PNG, WebP</span>
+              </div>
+              <img id="img-preview" style="display:none; width:100%; height:100%; object-fit:cover" alt="Product image" />
+              <div class="img-upload-overlay">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Change image
+              </div>
+            </div>
+            <input type="file" id="f-image" accept="image/*" style="display:none" onchange="previewImage(this)" />
+          </div>
           <div class="form-field">
-            <label class="form-label" for="f-sku">SKU</label>
-            <input class="form-input" id="f-sku" type="text" placeholder="e.g. AKL-001" />
+            <label class="form-label" for="f-code">Product Code</label>
+            <input class="form-input" id="f-code" type="text" placeholder="e.g. AKL-001" />
           </div>
           <div class="form-field">
             <label class="form-label" for="f-name">Name</label>
@@ -899,6 +987,13 @@
   </main>
 </div>
 
+<footer class="app-footer">
+  <span class="app-footer-brand">Auckland Sales</span>
+  <span>·</span>
+  <span>Operations Dashboard</span>
+  <span class="app-footer-right">© 2025 Auckland Sales</span>
+</footer>
+
 <script>
   // ── Firebase config — paste your config object from the Firebase console ──
   const firebaseConfig = {
@@ -913,7 +1008,8 @@
   const WEBHOOK_URL = 'https://n8n.zrsdev.com/webhook/market-report';
 
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  const db      = firebase.firestore();
+  const storage = firebase.storage();
 
   // ── Mobile menu ─────────────────────────────────────────────────────────
   function toggleMobileMenu() {
@@ -1021,8 +1117,43 @@
   }
 
   // ── Product Catalog ─────────────────────────────────────────────────────
-  let allProducts = [];
-  let editId      = null;
+  let allProducts       = [];
+  let editId            = null;
+  let selectedImageFile = null;
+
+  function resetImageUpload(existingUrl) {
+    selectedImageFile = null;
+    document.getElementById('f-image').value = '';
+    const prompt  = document.getElementById('img-upload-prompt');
+    const preview = document.getElementById('img-preview');
+    const zone    = document.getElementById('img-upload-zone');
+    if (existingUrl) {
+      prompt.style.display  = 'none';
+      preview.src           = existingUrl;
+      preview.style.display = 'block';
+      zone.classList.add('has-image');
+    } else {
+      prompt.style.display  = '';
+      preview.style.display = 'none';
+      preview.src           = '';
+      zone.classList.remove('has-image');
+    }
+  }
+
+  function previewImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('img-upload-prompt').style.display = 'none';
+      const preview = document.getElementById('img-preview');
+      preview.src           = e.target.result;
+      preview.style.display = 'block';
+      document.getElementById('img-upload-zone').classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+  }
 
   function stockPillClass(status) {
     if (!status) return 'pill-misc';
@@ -1034,7 +1165,6 @@
     }
   }
 
-  // Image placeholder SVG (reused per card)
   const IMG_PLACEHOLDER_SVG = `
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -1042,6 +1172,13 @@
       <polyline points="21 15 16 10 5 21"/>
     </svg>
     <span class="pc-img-label">No image</span>`;
+
+  function productImageHtml(p) {
+    if (p.image_url) {
+      return `<img src="${p.image_url}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover" />`;
+    }
+    return IMG_PLACEHOLDER_SVG;
+  }
 
   function renderProducts(products) {
     allProducts = products;
@@ -1059,9 +1196,9 @@
 
     container.innerHTML = `<div class="product-grid">${products.map(p => `
       <div class="pc">
-        <div class="pc-img">${IMG_PLACEHOLDER_SVG}</div>
+        <div class="pc-img">${productImageHtml(p)}</div>
         <div class="pc-body">
-          <div class="pc-sku">${esc(p.sku)}</div>
+          <div class="pc-sku">${esc(p.product_code)}</div>
           <div class="pc-name-row">
             <div class="pc-name">${esc(p.name)}</div>
             <div class="pc-price">${p.price != null ? '$' + Number(p.price).toFixed(2) : '—'}</div>
@@ -1099,7 +1236,7 @@
   function showProductForm(product) {
     editId = product ? product.id : null;
     document.getElementById('pf-title').textContent      = product ? 'Edit Product' : 'Add Product';
-    document.getElementById('f-sku').value               = product?.sku || '';
+    document.getElementById('f-code').value              = product?.product_code || '';
     document.getElementById('f-name').value              = product?.name || '';
     document.getElementById('f-price').value             = product?.price ?? '';
     document.getElementById('f-status').value            = product?.stock_status || 'In Stock';
@@ -1107,6 +1244,7 @@
     document.getElementById('f-desc').value              = product?.description || '';
     document.getElementById('f-notes').value             = product?.notes || '';
     document.getElementById('pf-error').classList.remove('show');
+    resetImageUpload(product?.image_url || null);
     document.getElementById('product-form-panel').classList.add('open');
     document.getElementById('product-form-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -1118,13 +1256,21 @@
 
   function hideProductForm() {
     editId = null;
+    resetImageUpload(null);
     document.getElementById('product-form-panel').classList.remove('open');
+  }
+
+  async function uploadProductImage(productId) {
+    if (!selectedImageFile) return null;
+    const ref      = storage.ref(`products/${productId}/image`);
+    const snapshot = await ref.put(selectedImageFile);
+    return await snapshot.ref.getDownloadURL();
   }
 
   async function saveProduct() {
     const priceRaw = document.getElementById('f-price').value;
     const payload = {
-      sku:          document.getElementById('f-sku').value.trim(),
+      product_code: document.getElementById('f-code').value.trim(),
       name:         document.getElementById('f-name').value.trim(),
       price:        priceRaw !== '' ? parseFloat(priceRaw) : null,
       stock_status: document.getElementById('f-status').value,
@@ -1135,13 +1281,23 @@
 
     const btn = document.getElementById('pf-save-btn');
     btn.disabled    = true;
-    btn.textContent = 'Saving…';
+    btn.textContent = selectedImageFile ? 'Uploading…' : 'Saving…';
 
     try {
       if (editId) {
+        if (selectedImageFile) {
+          payload.image_url = await uploadProductImage(editId);
+          btn.textContent = 'Saving…';
+        }
         await db.collection('products').doc(editId).update(payload);
       } else {
-        await db.collection('products').add({
+        // Pre-generate ID so we can use it as the Storage path before writing to Firestore
+        const docRef = db.collection('products').doc();
+        if (selectedImageFile) {
+          payload.image_url = await uploadProductImage(docRef.id);
+          btn.textContent = 'Saving…';
+        }
+        await docRef.set({
           ...payload,
           created_at: firebase.firestore.FieldValue.serverTimestamp(),
         });
@@ -1162,6 +1318,8 @@
     if (!confirm('Delete this product? This cannot be undone.')) return;
     try {
       await db.collection('products').doc(id).delete();
+      // Clean up image from Storage if it exists — ignore errors (no image is fine)
+      storage.ref(`products/${id}/image`).delete().catch(() => {});
       loadProducts();
     } catch (err) {
       alert('Delete failed: ' + err.message);
