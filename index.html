@@ -7,7 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -899,12 +900,20 @@
 </div>
 
 <script>
-  // ── Config ─────────────────────────────────────────────────────────────
-  const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-  const WEBHOOK_URL       = 'https://n8n.zrsdev.com/webhook/market-report';
+  // ── Firebase config — paste your config object from the Firebase console ──
+  const firebaseConfig = {
+    apiKey:            'YOUR_API_KEY',
+    authDomain:        'YOUR_PROJECT_ID.firebaseapp.com',
+    projectId:         'YOUR_PROJECT_ID',
+    storageBucket:     'YOUR_PROJECT_ID.appspot.com',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+    appId:             'YOUR_APP_ID',
+  };
 
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const WEBHOOK_URL = 'https://n8n.zrsdev.com/webhook/market-report';
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
   // ── Mobile menu ─────────────────────────────────────────────────────────
   function toggleMobileMenu() {
@@ -1075,15 +1084,16 @@
       `<div class="products-status">Loading…</div>`;
     document.getElementById('catalog-count').textContent = '';
 
-    const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
-
-    if (error) {
+    try {
+      const snapshot = await db.collection('products')
+        .orderBy('created_at', 'desc')
+        .get();
+      const products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderProducts(products);
+    } catch (err) {
       document.getElementById('products-container').innerHTML =
-        `<div class="products-status" style="color:var(--red)">${esc(error.message)}</div>`;
-      return;
+        `<div class="products-status" style="color:var(--red)">${esc(err.message)}</div>`;
     }
-
-    renderProducts(data);
   }
 
   function showProductForm(product) {
@@ -1127,48 +1137,58 @@
     btn.disabled    = true;
     btn.textContent = 'Saving…';
 
-    const { error } = editId
-      ? await db.from('products').update(payload).eq('id', editId)
-      : await db.from('products').insert(payload);
-
-    btn.disabled    = false;
-    btn.textContent = 'Save Product';
-
-    if (error) {
+    try {
+      if (editId) {
+        await db.collection('products').doc(editId).update(payload);
+      } else {
+        await db.collection('products').add({
+          ...payload,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      hideProductForm();
+      loadProducts();
+    } catch (err) {
       const el = document.getElementById('pf-error');
-      el.textContent = error.message;
+      el.textContent = err.message;
       el.classList.add('show');
-      return;
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Save Product';
     }
-
-    hideProductForm();
-    loadProducts();
   }
 
   async function deleteProduct(id) {
     if (!confirm('Delete this product? This cannot be undone.')) return;
-    const { error } = await db.from('products').delete().eq('id', id);
-    if (error) { alert('Delete failed: ' + error.message); return; }
-    loadProducts();
+    try {
+      await db.collection('products').doc(id).delete();
+      loadProducts();
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
   }
 
   // ── Business Info ───────────────────────────────────────────────────────
   async function loadBusinessInfo() {
-    const { data, error } = await db.from('business_info').select('*').eq('id', 1).maybeSingle();
-    if (error || !data) return;
-    document.getElementById('biz-name').value      = data.store_name || '';
-    document.getElementById('biz-instagram').value = data.instagram || '';
-    document.getElementById('biz-phone').value     = data.phone || '';
-    document.getElementById('biz-address').value   = data.address || '';
-    document.getElementById('biz-shipping').value  = data.shipping_policy || '';
-    document.getElementById('biz-returns').value   = data.return_policy || '';
-    document.getElementById('biz-payment').value   = data.payment_methods || '';
-    document.getElementById('biz-hours').value     = data.operating_hours || '';
+    try {
+      const docSnap = await db.collection('business_info').doc('main').get();
+      if (!docSnap.exists) return;
+      const data = docSnap.data();
+      document.getElementById('biz-name').value      = data.store_name || '';
+      document.getElementById('biz-instagram').value = data.instagram || '';
+      document.getElementById('biz-phone').value     = data.phone || '';
+      document.getElementById('biz-address').value   = data.address || '';
+      document.getElementById('biz-shipping').value  = data.shipping_policy || '';
+      document.getElementById('biz-returns').value   = data.return_policy || '';
+      document.getElementById('biz-payment').value   = data.payment_methods || '';
+      document.getElementById('biz-hours').value     = data.operating_hours || '';
+    } catch (err) {
+      console.error('Failed to load business info:', err);
+    }
   }
 
   async function saveBusinessInfo() {
     const payload = {
-      id:              1,
       store_name:      document.getElementById('biz-name').value.trim(),
       instagram:       document.getElementById('biz-instagram').value.trim(),
       phone:           document.getElementById('biz-phone').value.trim(),
@@ -1177,7 +1197,7 @@
       return_policy:   document.getElementById('biz-returns').value.trim(),
       payment_methods: document.getElementById('biz-payment').value.trim(),
       operating_hours: document.getElementById('biz-hours').value.trim(),
-      updated_at:      new Date().toISOString(),
+      updated_at:      firebase.firestore.FieldValue.serverTimestamp(),
     };
 
     const btn  = document.getElementById('biz-save-btn');
@@ -1186,20 +1206,20 @@
     btn.textContent = 'Saving…';
     feed.className  = 'biz-feedback';
 
-    const { error } = await db.from('business_info').upsert(payload, { onConflict: 'id' });
-
-    btn.disabled    = false;
-    btn.textContent = 'Save Changes';
-
-    if (error) {
-      feed.textContent = '✕ ' + error.message;
-      feed.style.color = 'var(--red)';
-      feed.classList.add('show');
-    } else {
+    try {
+      // .set with merge:true = upsert — creates the doc if it doesn't exist, updates if it does
+      await db.collection('business_info').doc('main').set(payload, { merge: true });
       feed.textContent = '✓ Saved';
       feed.style.color = 'var(--accent)';
       feed.classList.add('show');
       setTimeout(() => { feed.className = 'biz-feedback'; }, 3000);
+    } catch (err) {
+      feed.textContent = '✕ ' + err.message;
+      feed.style.color = 'var(--red)';
+      feed.classList.add('show');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Save Changes';
     }
   }
 
