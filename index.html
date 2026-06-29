@@ -26,6 +26,7 @@
       --red-dim:    rgba(224, 82, 82, 0.12);
       --amber:      #f59e0b;
       --amber-dim:  rgba(245, 158, 11, 0.1);
+      --topbar-h:   56px;
     }
 
     html, body {
@@ -34,6 +35,64 @@
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Mobile topbar (hidden on desktop) ────────────────────────────── */
+    .mobile-topbar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: var(--topbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hamburger-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted2);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .hamburger-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .hamburger-btn.open  { background: var(--accent-dim); border-color: rgba(0,179,126,0.25); color: var(--accent); }
+
+    /* ─── Mobile nav dropdown ──────────────────────────────────────────── */
+    .mobile-nav {
+      position: fixed;
+      top: var(--topbar-h);
+      left: 0; right: 0;
+      z-index: 199;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 10px 12px;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .mobile-nav.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .mobile-nav .nav-list {
+      flex-direction: column;
+      gap: 2px;
     }
 
     /* ─── App shell ─────────────────────────────────────────────────────── */
@@ -82,6 +141,7 @@
       margin-top: 4px;
     }
 
+    /* ─── Nav (shared by sidebar + mobile nav) ─────────────────────────── */
     .nav-list {
       list-style: none;
       padding: 0 10px;
@@ -105,10 +165,9 @@
       user-select: none;
     }
 
-    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-item:hover  { background: rgba(255,255,255,0.04); color: var(--text); }
     .nav-item.active { background: var(--accent-dim); color: var(--accent); }
-    .nav-item svg { flex-shrink: 0; }
-
+    .nav-item svg    { flex-shrink: 0; }
 
     /* ─── Main content ─────────────────────────────────────────────────── */
     .main { flex: 1; min-width: 0; }
@@ -129,26 +188,18 @@
       letter-spacing: -0.3px;
     }
 
-    .view-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 5px;
-    }
+    .view-sub { font-size: 13px; color: var(--muted); margin-top: 5px; }
 
-    .view-divider {
-      height: 1px;
-      background: var(--border);
-      margin-top: 18px;
-    }
+    .view-divider { height: 1px; background: var(--border); margin-top: 18px; }
 
-    /* ─── Dashboard card grid (unchanged) ─────────────────────────────── */
-    .grid {
+    /* ─── Dashboard card grid ──────────────────────────────────────────── */
+    .dash-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
     }
 
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
 
     .card {
       background: var(--surface);
@@ -161,7 +212,7 @@
       transition: border-color 0.2s;
     }
 
-    .card:hover { border-color: var(--border2); }
+    .card:hover  { border-color: var(--border2); }
     .card.dimmed { opacity: 0.55; }
 
     .card-label {
@@ -173,12 +224,7 @@
       color: var(--muted);
     }
 
-    .card-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
+    .card-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
     .card-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -277,24 +323,24 @@
     /* ─── Dashboard footer ─────────────────────────────────────────────── */
     .dash-footer { margin-top: 56px; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
 
-    /* ─── Product Catalog ──────────────────────────────────────────────── */
+    /* ─── Product Catalog toolbar ──────────────────────────────────────── */
     .catalog-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .catalog-count { font-size: 13px; color: var(--muted); }
 
-    /* Add/Edit panel */
+    /* ─── Add / Edit form panel ────────────────────────────────────────── */
     .product-form-panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 22px 24px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: none;
     }
 
@@ -357,68 +403,14 @@
     }
 
     .form-select option { background: var(--surface); }
-
     .form-textarea { resize: vertical; min-height: 70px; }
 
     .pf-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
-    .pf-error {
-      display: none;
-      font-size: 12.5px;
-      color: var(--red);
-      margin-left: 4px;
-    }
-
+    .pf-error { display: none; font-size: 12.5px; color: var(--red); }
     .pf-error.show { display: block; }
 
-    /* ─── Table ────────────────────────────────────────────────────────── */
-    .table-wrap {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      overflow-x: auto;
-    }
-
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
-    thead th {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 11px 14px;
-      text-align: left;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.018); }
-
-    tbody td { padding: 11px 14px; vertical-align: top; }
-
-    .td-sku { color: var(--muted2); font-family: 'Space Grotesk', sans-serif; font-size: 12px; white-space: nowrap; }
-    .td-name { font-weight: 500; white-space: nowrap; }
-    .td-price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent); white-space: nowrap; }
-
-    .td-clamp {
-      color: var(--muted);
-      font-size: 12.5px;
-      line-height: 1.45;
-      max-width: 160px;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .td-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-
-    /* Stock pills */
+    /* ─── Stock pills ──────────────────────────────────────────────────── */
     .stock-pill {
       display: inline-flex;
       align-items: center;
@@ -434,15 +426,141 @@
     .pill-out  { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(224,82,82,0.2); }
     .pill-misc { background: rgba(90,100,120,0.15); color: var(--muted2); border: 1px solid rgba(90,100,120,0.2); }
 
-    /* Table empty / status rows */
-    .table-msg {
+    /* ─── Product card grid ────────────────────────────────────────────── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* ─── Product card ─────────────────────────────────────────────────── */
+    .pc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s;
+    }
+
+    .pc:hover { border-color: var(--border2); }
+
+    /* Image slot — reserved for phase 2, currently shows placeholder */
+    .pc-img {
+      width: 100%;
+      height: 148px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .pc-img svg { opacity: 0.3; }
+
+    .pc-img-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      opacity: 0.45;
+    }
+
+    /* Card body */
+    .pc-body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+    }
+
+    .pc-sku {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pc-name-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pc-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .pc-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .pc-variants {
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.4;
+    }
+
+    .pc-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .pc-notes {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Card footer */
+    .pc-footer {
+      padding: 11px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Product list empty / loading / error states */
+    .products-status {
       text-align: center;
-      padding: 40px 20px;
+      padding: 56px 20px;
       color: var(--muted);
       font-size: 13px;
     }
 
-    .table-msg-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
+    .products-status-icon {
+      font-size: 30px;
+      margin-bottom: 12px;
+      opacity: 0.35;
+    }
 
     /* ─── Business Info ─────────────────────────────────────────────────── */
     .biz-form { width: 100%; }
@@ -465,56 +583,81 @@
 
     .biz-actions { display: flex; align-items: center; gap: 14px; margin-top: 28px; }
 
-    .biz-feedback {
-      font-size: 13px;
-      font-weight: 500;
-      display: none;
-    }
-
+    .biz-feedback { font-size: 13px; font-weight: 500; display: none; }
     .biz-feedback.show { display: block; }
 
     /* ─── Mobile ────────────────────────────────────────────────────────── */
     @media (max-width: 768px) {
-      .app { flex-direction: column; }
+      .app { padding-top: var(--topbar-h); }
+      .sidebar { display: none; }
+      .mobile-topbar { display: flex; }
 
-      .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 16px 16px 12px;
-        flex-direction: row;
-        align-items: center;
-        gap: 0;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .sidebar-brand {
-        padding: 0 16px 0 0;
-        border-bottom: none;
-        border-right: 1px solid var(--border);
-        margin-bottom: 0;
-      }
-
-.nav-list { flex-direction: row; padding: 0 0 0 14px; gap: 4px; }
-      .nav-item { font-size: 12.5px; padding: 7px 10px; }
-
-      .view { padding: 28px 20px 60px; }
+      .view { padding: 28px 20px 64px; }
       .form-grid { grid-template-columns: 1fr; }
       .form-field.span-full { grid-column: 1; }
     }
+
+    /* Product grid breakpoints */
+    @media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px)  { .product-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+
+<!-- ── Mobile topbar (≤768px only) ──────────────────────────────────── -->
+<div class="mobile-topbar" id="mobile-topbar">
+  <div>
+    <div class="wordmark">Auckland<span>.</span></div>
+    <div class="ops-label">Operations</div>
+  </div>
+  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+    <svg id="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <svg id="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ── Mobile nav dropdown ──────────────────────────────────────────── -->
+<div class="mobile-nav" id="mobile-nav">
+  <ul class="nav-list">
+    <li class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Dashboard
+    </li>
+    <li class="nav-item" data-view="products" onclick="showView('products')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      Product Catalog
+    </li>
+    <li class="nav-item" data-view="business" onclick="showView('business')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 00-14.14 0M4.93 19.07a10 10 0 0014.14 0"/>
+        <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+      </svg>
+      Business Info
+    </li>
+  </ul>
+</div>
+
+<!-- ── App ──────────────────────────────────────────────────────────── -->
 <div class="app">
 
-  <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+  <!-- Sidebar (desktop only) -->
   <nav class="sidebar">
     <div class="sidebar-brand">
       <div class="wordmark">Auckland<span>.</span></div>
       <div class="ops-label">Operations</div>
     </div>
-
     <ul class="nav-list">
       <li class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -540,15 +683,14 @@
         Business Info
       </li>
     </ul>
-
   </nav>
 
-  <!-- ── Main ───────────────────────────────────────────────────────── -->
+  <!-- Main content -->
   <main class="main">
 
-    <!-- ════════════════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════════════════
          Dashboard View
-    ════════════════════════════════════════════════════════════════ -->
+    ══════════════════════════════════════════════════════════════════ -->
     <div id="view-dashboard" class="view active">
       <div class="view-header">
         <div class="view-title">Dashboard</div>
@@ -556,7 +698,7 @@
         <div class="view-divider"></div>
       </div>
 
-      <div class="grid">
+      <div class="dash-grid">
 
         <!-- Card 1: Market Intelligence -->
         <div class="card" id="card-market">
@@ -625,9 +767,9 @@
       <footer class="dash-footer">Auckland Sales Ops · Built by ZRS Dev</footer>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════════════════
          Product Catalog View
-    ════════════════════════════════════════════════════════════════ -->
+    ══════════════════════════════════════════════════════════════════ -->
     <div id="view-products" class="view">
       <div class="view-header">
         <div class="view-title">Product Catalog</div>
@@ -635,7 +777,7 @@
         <div class="view-divider"></div>
       </div>
 
-      <!-- Add / Edit panel (hidden by default) -->
+      <!-- Add / Edit panel -->
       <div id="product-form-panel" class="product-form-panel">
         <div class="pf-title" id="pf-title">Add Product</div>
         <div class="form-grid">
@@ -686,31 +828,15 @@
         <button class="btn btn-primary btn-sm" onclick="showProductForm()">+ Add Product</button>
       </div>
 
-      <!-- Table -->
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>SKU</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price (NZD)</th>
-              <th>Variants</th>
-              <th>Stock Status</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="products-tbody">
-            <tr><td colspan="8"><div class="table-msg">Loading…</div></td></tr>
-          </tbody>
-        </table>
+      <!-- Product cards rendered here -->
+      <div id="products-container">
+        <div class="products-status">Loading…</div>
       </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════════════════
          Business Info View
-    ════════════════════════════════════════════════════════════════ -->
+    ══════════════════════════════════════════════════════════════════ -->
     <div id="view-business" class="view">
       <div class="view-header">
         <div class="view-title">Business Info</div>
@@ -780,17 +906,48 @@
 
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // ── Mobile menu ─────────────────────────────────────────────────────────
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-nav');
+    const btn  = document.getElementById('hamburger-btn');
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+    document.getElementById('icon-menu').style.display  = isOpen ? 'none'  : 'block';
+    document.getElementById('icon-close').style.display = isOpen ? 'block' : 'none';
+  }
+
+  function closeMobileMenu() {
+    const menu = document.getElementById('mobile-nav');
+    const btn  = document.getElementById('hamburger-btn');
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    document.getElementById('icon-menu').style.display  = 'block';
+    document.getElementById('icon-close').style.display = 'none';
+  }
+
+  // Close on outside click
+  document.addEventListener('click', function(e) {
+    const btn  = document.getElementById('hamburger-btn');
+    const menu = document.getElementById('mobile-nav');
+    if (menu.classList.contains('open') && !btn.contains(e.target) && !menu.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+
   // ── View switcher ───────────────────────────────────────────────────────
   function showView(name) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('view-' + name).classList.add('active');
-    document.querySelector(`[data-view="${name}"]`).classList.add('active');
+    document.querySelectorAll(`[data-view="${name}"]`).forEach(n => n.classList.add('active'));
+    closeMobileMenu();
     if (name === 'products') loadProducts();
     if (name === 'business') loadBusinessInfo();
   }
 
-  // ── Generate Report (unchanged logic) ──────────────────────────────────
+  // ── Generate Report (unchanged) ─────────────────────────────────────────
   function formatDatetime(date) {
     return date.toLocaleString('en-NZ', {
       day: '2-digit', month: 'short', year: 'numeric',
@@ -861,56 +1018,68 @@
   function stockPillClass(status) {
     if (!status) return 'pill-misc';
     switch (status.toLowerCase()) {
-      case 'in stock':    return 'pill-in';
-      case 'low stock':   return 'pill-low';
+      case 'in stock':     return 'pill-in';
+      case 'low stock':    return 'pill-low';
       case 'out of stock': return 'pill-out';
-      default:            return 'pill-misc';
+      default:             return 'pill-misc';
     }
   }
+
+  // Image placeholder SVG (reused per card)
+  const IMG_PLACEHOLDER_SVG = `
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+    <span class="pc-img-label">No image</span>`;
 
   function renderProducts(products) {
     allProducts = products;
-    const tbody = document.getElementById('products-tbody');
-    const count = document.getElementById('catalog-count');
-    count.textContent = `${products.length} product${products.length !== 1 ? 's' : ''}`;
+    const container = document.getElementById('products-container');
+    document.getElementById('catalog-count').textContent =
+      `${products.length} product${products.length !== 1 ? 's' : ''}`;
 
     if (!products.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="table-msg">
-        <div class="table-msg-icon">📦</div>
+      container.innerHTML = `<div class="products-status">
+        <div class="products-status-icon">📦</div>
         <div>No products yet. Click <strong>+ Add Product</strong> to get started.</div>
-      </div></td></tr>`;
+      </div>`;
       return;
     }
 
-    tbody.innerHTML = products.map(p => `
-      <tr>
-        <td class="td-sku">${esc(p.sku)}</td>
-        <td class="td-name">${esc(p.name)}</td>
-        <td><div class="td-clamp">${esc(p.description)}</div></td>
-        <td class="td-price">${p.price != null ? '$' + Number(p.price).toFixed(2) : '—'}</td>
-        <td>${esc(p.variants)}</td>
-        <td><span class="stock-pill ${stockPillClass(p.stock_status)}">${esc(p.stock_status)}</span></td>
-        <td><div class="td-clamp">${esc(p.notes)}</div></td>
-        <td>
-          <div class="td-actions">
-            <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+    container.innerHTML = `<div class="product-grid">${products.map(p => `
+      <div class="pc">
+        <div class="pc-img">${IMG_PLACEHOLDER_SVG}</div>
+        <div class="pc-body">
+          <div class="pc-sku">${esc(p.sku)}</div>
+          <div class="pc-name-row">
+            <div class="pc-name">${esc(p.name)}</div>
+            <div class="pc-price">${p.price != null ? '$' + Number(p.price).toFixed(2) : '—'}</div>
           </div>
-        </td>
-      </tr>
-    `).join('');
+          <div><span class="stock-pill ${stockPillClass(p.stock_status)}">${esc(p.stock_status)}</span></div>
+          ${p.variants    ? `<div class="pc-variants">${esc(p.variants)}</div>` : ''}
+          ${p.description ? `<div class="pc-desc">${esc(p.description)}</div>` : ''}
+          ${p.notes       ? `<div class="pc-notes">${esc(p.notes)}</div>` : ''}
+        </div>
+        <div class="pc-footer">
+          <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('')}</div>`;
   }
 
   async function loadProducts() {
-    document.getElementById('products-tbody').innerHTML =
-      `<tr><td colspan="8"><div class="table-msg">Loading…</div></td></tr>`;
+    document.getElementById('products-container').innerHTML =
+      `<div class="products-status">Loading…</div>`;
     document.getElementById('catalog-count').textContent = '';
 
     const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
 
     if (error) {
-      document.getElementById('products-tbody').innerHTML =
-        `<tr><td colspan="8"><div class="table-msg" style="color:var(--red)">${esc(error.message)}</div></td></tr>`;
+      document.getElementById('products-container').innerHTML =
+        `<div class="products-status" style="color:var(--red)">${esc(error.message)}</div>`;
       return;
     }
 
@@ -919,14 +1088,14 @@
 
   function showProductForm(product) {
     editId = product ? product.id : null;
-    document.getElementById('pf-title').textContent = product ? 'Edit Product' : 'Add Product';
-    document.getElementById('f-sku').value      = product?.sku || '';
-    document.getElementById('f-name').value     = product?.name || '';
-    document.getElementById('f-price').value    = product?.price ?? '';
-    document.getElementById('f-status').value   = product?.stock_status || 'In Stock';
-    document.getElementById('f-variants').value = product?.variants || '';
-    document.getElementById('f-desc').value     = product?.description || '';
-    document.getElementById('f-notes').value    = product?.notes || '';
+    document.getElementById('pf-title').textContent      = product ? 'Edit Product' : 'Add Product';
+    document.getElementById('f-sku').value               = product?.sku || '';
+    document.getElementById('f-name').value              = product?.name || '';
+    document.getElementById('f-price').value             = product?.price ?? '';
+    document.getElementById('f-status').value            = product?.stock_status || 'In Stock';
+    document.getElementById('f-variants').value          = product?.variants || '';
+    document.getElementById('f-desc').value              = product?.description || '';
+    document.getElementById('f-notes').value             = product?.notes || '';
     document.getElementById('pf-error').classList.remove('show');
     document.getElementById('product-form-panel').classList.add('open');
     document.getElementById('product-form-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -943,10 +1112,11 @@
   }
 
   async function saveProduct() {
+    const priceRaw = document.getElementById('f-price').value;
     const payload = {
       sku:          document.getElementById('f-sku').value.trim(),
       name:         document.getElementById('f-name').value.trim(),
-      price:        document.getElementById('f-price').value !== '' ? parseFloat(document.getElementById('f-price').value) : null,
+      price:        priceRaw !== '' ? parseFloat(priceRaw) : null,
       stock_status: document.getElementById('f-status').value,
       variants:     document.getElementById('f-variants').value.trim(),
       description:  document.getElementById('f-desc').value.trim(),
@@ -986,14 +1156,14 @@
   async function loadBusinessInfo() {
     const { data, error } = await db.from('business_info').select('*').eq('id', 1).maybeSingle();
     if (error || !data) return;
-    document.getElementById('biz-name').value     = data.store_name || '';
+    document.getElementById('biz-name').value      = data.store_name || '';
     document.getElementById('biz-instagram').value = data.instagram || '';
-    document.getElementById('biz-phone').value    = data.phone || '';
-    document.getElementById('biz-address').value  = data.address || '';
-    document.getElementById('biz-shipping').value = data.shipping_policy || '';
-    document.getElementById('biz-returns').value  = data.return_policy || '';
-    document.getElementById('biz-payment').value  = data.payment_methods || '';
-    document.getElementById('biz-hours').value    = data.operating_hours || '';
+    document.getElementById('biz-phone').value     = data.phone || '';
+    document.getElementById('biz-address').value   = data.address || '';
+    document.getElementById('biz-shipping').value  = data.shipping_policy || '';
+    document.getElementById('biz-returns').value   = data.return_policy || '';
+    document.getElementById('biz-payment').value   = data.payment_methods || '';
+    document.getElementById('biz-hours').value     = data.operating_hours || '';
   }
 
   async function saveBusinessInfo() {
