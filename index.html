@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auckland Sales — Operations Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0A0D12;
+      --surface: #13181F;
+      --border: #1E2530;
+      --accent: #00B37E;
+      --accent-dim: rgba(0, 179, 126, 0.12);
+      --accent-glow: rgba(0, 179, 126, 0.25);
+      --text: #E8EDF2;
+      --muted: #5A6478;
+      --red: #E05252;
+      --red-dim: rgba(224, 82, 82, 0.12);
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 52px;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .wordmark {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .wordmark span {
+      color: var(--accent);
+    }
+
+    .ops-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .header-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin-top: 24px;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: #2a3444;
+    }
+
+    .card.dimmed {
+      opacity: 0.55;
+    }
+
+    /* ── Card label ── */
+    .card-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Card title row ── */
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Description ── */
+    .card-desc {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .badge-active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(0, 179, 126, 0.2);
+    }
+
+    .badge-soon {
+      background: rgba(90, 100, 120, 0.15);
+      color: var(--muted);
+      border: 1px solid rgba(90, 100, 120, 0.2);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    /* ── Last run ── */
+    .last-run {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .last-run strong {
+      color: #7a8799;
+      font-weight: 500;
+    }
+
+    /* ── Button ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+      width: 100%;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #00cc8e;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    /* ── Loading state ── */
+    .btn.loading {
+      animation: pulse-btn 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-btn {
+      0%, 100% { opacity: 0.8; }
+      50%       { opacity: 1;   }
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Feedback messages ── */
+    .feedback {
+      display: none;
+      font-size: 13px;
+      line-height: 1.5;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
+
+    .feedback-success {
+      background: var(--accent-dim);
+      border: 1px solid rgba(0, 179, 126, 0.2);
+      color: var(--accent);
+    }
+
+    .feedback-error {
+      background: var(--red-dim);
+      border: 1px solid rgba(224, 82, 82, 0.2);
+      color: var(--red);
+    }
+
+    .feedback-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .feedback a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .feedback a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 64px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header>
+      <div class="header-inner">
+        <div>
+          <div class="wordmark">Auckland<span>.</span></div>
+          <div class="ops-label">Operations Dashboard</div>
+        </div>
+      </div>
+      <div class="header-divider"></div>
+    </header>
+
+    <main class="grid">
+
+      <!-- Card 1: Market Intelligence (active) -->
+      <div class="card" id="card-market">
+        <div class="card-label">Market Intelligence</div>
+        <div class="card-title">Market Report</div>
+        <p class="card-desc">Generate a full NZ market analysis report — trending products, competitor pricing, and actionable recommendations.</p>
+        <div class="last-run" id="last-run-text">Last run: <strong>Never</strong></div>
+
+        <div class="feedback feedback-success" id="success-msg">
+          <span class="feedback-icon">✓</span>
+          <span id="success-content">Report generated. <a href="#" id="report-link" target="_blank" rel="noopener">View Report →</a></span>
+        </div>
+
+        <div class="feedback feedback-error" id="error-msg">
+          <span class="feedback-icon">✕</span>
+          <span id="error-content">Something went wrong.</span>
+        </div>
+
+        <button class="btn btn-primary" id="generate-btn" onclick="generateReport()">
+          Generate Report
+        </button>
+      </div>
+
+      <!-- Card 2: DM Auto-Reply (status only) -->
+      <div class="card">
+        <div class="card-label">Automation</div>
+        <div class="card-title-row">
+          <div class="card-title">DM Auto-Reply</div>
+          <span class="badge badge-active"><span class="dot"></span>Active</span>
+        </div>
+        <p class="card-desc">AI-powered Instagram and Facebook DM responses via ManyChat + n8n. Running continuously in the background.</p>
+      </div>
+
+      <!-- Card 3: Product Catalog -->
+      <div class="card dimmed">
+        <div class="card-label">Catalog</div>
+        <div class="card-title-row">
+          <div class="card-title">Product Catalog</div>
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <p class="card-desc">Manage product variants, pricing, and availability fed into the AI.</p>
+      </div>
+
+      <!-- Card 4: Competitor Tracker -->
+      <div class="card dimmed">
+        <div class="card-label">Intelligence</div>
+        <div class="card-title-row">
+          <div class="card-title">Competitor Tracker</div>
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <p class="card-desc">Monitor competitor listings and price changes in the NZ market.</p>
+      </div>
+
+      <!-- Card 5: Performance Analytics -->
+      <div class="card dimmed" style="grid-column: 1 / -1;">
+        <div class="card-label">Analytics</div>
+        <div class="card-title-row">
+          <div class="card-title">Performance Analytics</div>
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <p class="card-desc">DM response rates, conversation metrics, and AI accuracy scores.</p>
+      </div>
+
+    </main>
+
+    <footer>Auckland Sales Ops · Built by ZRS Dev</footer>
+
+  </div>
+
+  <script>
+    const WEBHOOK_URL = 'https://n8n.zrsdev.com/webhook/market-report';
+
+    function formatDatetime(date) {
+      return date.toLocaleString('en-NZ', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true
+      });
+    }
+
+    function setLastRun(date) {
+      const el = document.getElementById('last-run-text');
+      el.innerHTML = `Last run: <strong>${formatDatetime(date)}</strong>`;
+    }
+
+    function showSuccess(docUrl) {
+      const msg = document.getElementById('success-msg');
+      const link = document.getElementById('report-link');
+      link.href = docUrl || '#';
+      msg.classList.add('show');
+      document.getElementById('error-msg').classList.remove('show');
+    }
+
+    function showError(text) {
+      const msg = document.getElementById('error-msg');
+      document.getElementById('error-content').textContent = text;
+      msg.classList.add('show');
+      document.getElementById('success-msg').classList.remove('show');
+    }
+
+    function clearFeedback() {
+      document.getElementById('success-msg').classList.remove('show');
+      document.getElementById('error-msg').classList.remove('show');
+    }
+
+    function setButtonState(state) {
+      const btn = document.getElementById('generate-btn');
+      if (state === 'loading') {
+        btn.disabled = true;
+        btn.classList.add('loading');
+        btn.innerHTML = '<span class="spinner"></span> Generating...';
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.innerHTML = 'Generate Report';
+      }
+    }
+
+    async function generateReport() {
+      clearFeedback();
+      setButtonState('loading');
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server returned ${res.status} ${res.statusText}`);
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+
+        // Accept doc URL from common field names
+        const docUrl = data.viewLink || data.docUrl || data.doc_url || data.url || data.link || data.reportUrl || null;
+
+        setLastRun(new Date());
+        showSuccess(docUrl);
+
+      } catch (err) {
+        let msg = err.message || 'An unknown error occurred.';
+
+        // CORS errors appear as TypeError: Failed to fetch (or similar)
+        if (err instanceof TypeError && /fetch|network|cors/i.test(msg)) {
+          msg = 'Could not reach the server. Check your network connection or CORS settings.';
+        }
+
+        showError(msg);
+      } finally {
+        setTimeout(() => setButtonState('idle'), 3000);
+      }
+    }
+  </script>
+</body>
+</html>
