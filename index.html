@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1005,11 +1004,12 @@
     appId:             '1:884405056005:web:c4b52ff482270c6a17e26c',
   };
 
-  const WEBHOOK_URL = 'https://n8n.zrsdev.com/webhook/market-report';
+  const WEBHOOK_URL        = 'https://n8n.zrsdev.com/webhook/market-report';
+  const CLOUDINARY_CLOUD   = 'YOUR_CLOUD_NAME';
+  const CLOUDINARY_PRESET  = 'YOUR_UPLOAD_PRESET';
 
   firebase.initializeApp(firebaseConfig);
-  const db      = firebase.firestore();
-  const storage = firebase.storage();
+  const db = firebase.firestore();
 
   // ── Mobile menu ─────────────────────────────────────────────────────────
   function toggleMobileMenu() {
@@ -1262,9 +1262,19 @@
 
   async function uploadProductImage(productId) {
     if (!selectedImageFile) return null;
-    const ref      = storage.ref(`products/${productId}/image`);
-    const snapshot = await ref.put(selectedImageFile);
-    return await snapshot.ref.getDownloadURL();
+    const formData = new FormData();
+    formData.append('file', selectedImageFile);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', 'auckland-sales');
+    formData.append('public_id', productId);
+    formData.append('overwrite', 'true');
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) throw new Error('Image upload failed — check Cloudinary config.');
+    const data = await res.json();
+    return data.secure_url;
   }
 
   async function saveProduct() {
@@ -1318,8 +1328,6 @@
     if (!confirm('Delete this product? This cannot be undone.')) return;
     try {
       await db.collection('products').doc(id).delete();
-      // Clean up image from Storage if it exists — ignore errors (no image is fine)
-      storage.ref(`products/${id}/image`).delete().catch(() => {});
       loadProducts();
     } catch (err) {
       alert('Delete failed: ' + err.message);
