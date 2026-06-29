@@ -7,24 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0A0D12;
-      --surface: #13181F;
-      --border: #1E2530;
-      --accent: #00B37E;
+      --bg:         #0A0D12;
+      --surface:    #13181F;
+      --surface2:   #0e1218;
+      --border:     #1E2530;
+      --border2:    #2a3444;
+      --accent:     #00B37E;
       --accent-dim: rgba(0, 179, 126, 0.12);
-      --accent-glow: rgba(0, 179, 126, 0.25);
-      --text: #E8EDF2;
-      --muted: #5A6478;
-      --red: #E05252;
-      --red-dim: rgba(224, 82, 82, 0.12);
+      --text:       #E8EDF2;
+      --muted:      #5A6478;
+      --muted2:     #7a8799;
+      --red:        #E05252;
+      --red-dim:    rgba(224, 82, 82, 0.12);
+      --amber:      #f59e0b;
+      --amber-dim:  rgba(245, 158, 11, 0.1);
     }
 
     html, body {
@@ -35,67 +36,127 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .page {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-    }
-
-    /* ── Header ── */
-    header {
-      margin-bottom: 52px;
-    }
-
-    .header-inner {
+    /* ─── App shell ─────────────────────────────────────────────────────── */
+    .app {
       display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ──────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
     }
 
     .wordmark {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
       color: var(--text);
     }
 
-    .wordmark span {
-      color: var(--accent);
-    }
+    .wordmark span { color: var(--accent); }
 
     .ops-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted);
       margin-top: 4px;
     }
 
-    .header-divider {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
-      margin-top: 24px;
+    .nav-list {
+      list-style: none;
+      padding: 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    /* ── Grid ── */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted2);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── Main content ─────────────────────────────────────────────────── */
+    .main { flex: 1; min-width: 0; }
+
+    /* ─── Views ────────────────────────────────────────────────────────── */
+    .view { display: none; padding: 44px 40px 80px; }
+    .view.active { display: block; }
+
+    #view-dashboard { max-width: 900px; }
+
+    .view-header { margin-bottom: 32px; }
+
+    .view-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .view-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .view-divider {
+      height: 1px;
+      background: var(--border);
+      margin-top: 18px;
+    }
+
+    /* ─── Dashboard card grid (unchanged) ─────────────────────────────── */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
     }
 
-    @media (max-width: 600px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
 
-    /* ── Card base ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -107,15 +168,9 @@
       transition: border-color 0.2s;
     }
 
-    .card:hover {
-      border-color: #2a3444;
-    }
+    .card:hover { border-color: var(--border2); }
+    .card.dimmed { opacity: 0.55; }
 
-    .card.dimmed {
-      opacity: 0.55;
-    }
-
-    /* ── Card label ── */
     .card-label {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 10px;
@@ -125,7 +180,6 @@
       color: var(--muted);
     }
 
-    /* ── Card title row ── */
     .card-title-row {
       display: flex;
       align-items: center;
@@ -140,15 +194,9 @@
       color: var(--text);
     }
 
-    /* ── Description ── */
-    .card-desc {
-      font-size: 13.5px;
-      line-height: 1.6;
-      color: var(--muted);
-      flex: 1;
-    }
+    .card-desc { font-size: 13.5px; line-height: 1.6; color: var(--muted); flex: 1; }
 
-    /* ── Badges ── */
+    /* ─── Badges ───────────────────────────────────────────────────────── */
     .badge {
       display: inline-flex;
       align-items: center;
@@ -160,99 +208,62 @@
       white-space: nowrap;
     }
 
-    .badge-active {
-      background: var(--accent-dim);
-      color: var(--accent);
-      border: 1px solid rgba(0, 179, 126, 0.2);
-    }
+    .badge-active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,179,126,0.2); }
+    .badge-soon   { background: rgba(90,100,120,0.15); color: var(--muted); border: 1px solid rgba(90,100,120,0.2); }
 
-    .badge-soon {
-      background: rgba(90, 100, 120, 0.15);
-      color: var(--muted);
-      border: 1px solid rgba(90, 100, 120, 0.2);
-    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-    }
+    .last-run { font-size: 11.5px; color: var(--muted); }
+    .last-run strong { color: var(--muted2); font-weight: 500; }
 
-    /* ── Last run ── */
-    .last-run {
-      font-size: 11.5px;
-      color: var(--muted);
-    }
-
-    .last-run strong {
-      color: #7a8799;
-      font-weight: 500;
-    }
-
-    /* ── Button ── */
+    /* ─── Buttons ──────────────────────────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 8px;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: background 0.15s, opacity 0.15s, transform 0.1s;
-      width: 100%;
+      transition: background 0.15s, color 0.15s, transform 0.1s;
       letter-spacing: 0.01em;
+      white-space: nowrap;
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #000;
-    }
+    .btn-full { width: 100%; }
 
-    .btn-primary:hover:not(:disabled) {
-      background: #00cc8e;
-      transform: translateY(-1px);
-    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover:not(:disabled) { background: #00cc8e; transform: translateY(-1px); }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { cursor: not-allowed; opacity: 0.7; }
 
-    .btn-primary:active:not(:disabled) {
-      transform: translateY(0);
-    }
+    .btn-ghost { background: transparent; color: var(--muted2); border: 1px solid var(--border2); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .btn-primary:disabled {
-      cursor: not-allowed;
-      opacity: 0.8;
-    }
+    .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(224,82,82,0.2); }
+    .btn-danger:hover { background: rgba(224,82,82,0.2); }
 
-    /* ── Loading state ── */
-    .btn.loading {
-      animation: pulse-btn 1.4s ease-in-out infinite;
-    }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
 
-    @keyframes pulse-btn {
-      0%, 100% { opacity: 0.8; }
-      50%       { opacity: 1;   }
-    }
+    .btn.loading { animation: pulse-btn 1.4s ease-in-out infinite; }
+    @keyframes pulse-btn { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
 
     .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(0, 0, 0, 0.3);
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
       border-top-color: #000;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       flex-shrink: 0;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* ── Feedback messages ── */
+    /* ─── Feedback strip (report card) ────────────────────────────────── */
     .feedback {
       display: none;
       font-size: 13px;
@@ -263,215 +274,784 @@
 
     .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
 
-    .feedback-success {
-      background: var(--accent-dim);
-      border: 1px solid rgba(0, 179, 126, 0.2);
-      color: var(--accent);
+    .feedback-success { background: var(--accent-dim); border: 1px solid rgba(0,179,126,0.2); color: var(--accent); }
+    .feedback-error   { background: var(--red-dim); border: 1px solid rgba(224,82,82,0.2); color: var(--red); }
+
+    .feedback-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .feedback a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .feedback a:hover { text-decoration: underline; }
+
+    /* ─── Dashboard footer ─────────────────────────────────────────────── */
+    .dash-footer { margin-top: 56px; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+
+    /* ─── Product Catalog ──────────────────────────────────────────────── */
+    .catalog-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .feedback-error {
-      background: var(--red-dim);
-      border: 1px solid rgba(224, 82, 82, 0.2);
-      color: var(--red);
+    .catalog-count { font-size: 13px; color: var(--muted); }
+
+    /* Add/Edit panel */
+    .product-form-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      display: none;
     }
 
-    .feedback-icon {
+    .product-form-panel.open { display: block; }
+
+    .pf-title {
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 14px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .feedback a {
-      color: var(--accent);
       font-weight: 600;
-      text-decoration: none;
+      color: var(--text);
+      margin-bottom: 18px;
     }
 
-    .feedback a:hover {
-      text-decoration: underline;
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
     }
 
-    /* ── Footer ── */
-    footer {
-      margin-top: 64px;
-      text-align: center;
-      font-size: 12px;
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field.span-full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       color: var(--muted);
-      letter-spacing: 0.04em;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus { border-color: var(--accent); }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder { color: var(--muted); }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+      cursor: pointer;
+    }
+
+    .form-select option { background: var(--surface); }
+
+    .form-textarea { resize: vertical; min-height: 70px; }
+
+    .pf-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    .pf-error {
+      display: none;
+      font-size: 12.5px;
+      color: var(--red);
+      margin-left: 4px;
+    }
+
+    .pf-error.show { display: block; }
+
+    /* ─── Table ────────────────────────────────────────────────────────── */
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      overflow-x: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+    thead th {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 11px 14px;
+      text-align: left;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.018); }
+
+    tbody td { padding: 11px 14px; vertical-align: top; }
+
+    .td-sku { color: var(--muted2); font-family: 'Space Grotesk', sans-serif; font-size: 12px; white-space: nowrap; }
+    .td-name { font-weight: 500; white-space: nowrap; }
+    .td-price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+    .td-clamp {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+      max-width: 160px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .td-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+
+    /* Stock pills */
+    .stock-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .pill-in   { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,179,126,0.2); }
+    .pill-low  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.2); }
+    .pill-out  { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(224,82,82,0.2); }
+    .pill-misc { background: rgba(90,100,120,0.15); color: var(--muted2); border: 1px solid rgba(90,100,120,0.2); }
+
+    /* Table empty / status rows */
+    .table-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-msg-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
+
+    /* ─── Business Info ─────────────────────────────────────────────────── */
+    .biz-form { max-width: 580px; }
+
+    .biz-section {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin: 28px 0 16px;
+    }
+
+    .biz-section:first-child { margin-top: 0; }
+
+    .biz-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+
+    .biz-actions { display: flex; align-items: center; gap: 14px; margin-top: 28px; }
+
+    .biz-feedback {
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .biz-feedback.show { display: block; }
+
+    /* ─── Mobile ────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .app { flex-direction: column; }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 16px 16px 12px;
+        flex-direction: row;
+        align-items: center;
+        gap: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sidebar-brand {
+        padding: 0 16px 0 0;
+        border-bottom: none;
+        border-right: 1px solid var(--border);
+        margin-bottom: 0;
+      }
+
+      .sidebar-footer { display: none; }
+
+      .nav-list { flex-direction: row; padding: 0 0 0 14px; gap: 4px; }
+      .nav-item { font-size: 12.5px; padding: 7px 10px; }
+
+      .view { padding: 28px 20px 60px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-field.span-full { grid-column: 1; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
+<div class="app">
 
-    <header>
-      <div class="header-inner">
-        <div>
-          <div class="wordmark">Auckland<span>.</span></div>
-          <div class="ops-label">Operations Dashboard</div>
-        </div>
-      </div>
-      <div class="header-divider"></div>
-    </header>
+  <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="wordmark">Auckland<span>.</span></div>
+      <div class="ops-label">Operations</div>
+    </div>
 
-    <main class="grid">
+    <ul class="nav-list">
+      <li class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </li>
+      <li class="nav-item" data-view="products" onclick="showView('products')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        Product Catalog
+      </li>
+      <li class="nav-item" data-view="business" onclick="showView('business')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 00-14.14 0M4.93 19.07a10 10 0 0014.14 0"/>
+          <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+        </svg>
+        Business Info
+      </li>
+    </ul>
 
-      <!-- Card 1: Market Intelligence (active) -->
-      <div class="card" id="card-market">
-        <div class="card-label">Market Intelligence</div>
-        <div class="card-title">Market Report</div>
-        <p class="card-desc">Generate a full NZ market analysis report — trending products, competitor pricing, and actionable recommendations.</p>
-        <div class="last-run" id="last-run-text">Last run: <strong>Never</strong></div>
+    <div class="sidebar-footer">Auckland Sales Ops · ZRS Dev</div>
+  </nav>
 
-        <div class="feedback feedback-success" id="success-msg">
-          <span class="feedback-icon">✓</span>
-          <span id="success-content">Report generated. <a href="#" id="report-link" target="_blank" rel="noopener">View Report →</a></span>
-        </div>
+  <!-- ── Main ───────────────────────────────────────────────────────── -->
+  <main class="main">
 
-        <div class="feedback feedback-error" id="error-msg">
-          <span class="feedback-icon">✕</span>
-          <span id="error-content">Something went wrong.</span>
-        </div>
-
-        <button class="btn btn-primary" id="generate-btn" onclick="generateReport()">
-          Generate Report
-        </button>
-      </div>
-
-      <!-- Card 2: DM Auto-Reply (status only) -->
-      <div class="card">
-        <div class="card-label">Automation</div>
-        <div class="card-title-row">
-          <div class="card-title">DM Auto-Reply</div>
-          <span class="badge badge-active"><span class="dot"></span>Active</span>
-        </div>
-        <p class="card-desc">AI-powered Instagram and Facebook DM responses via ManyChat + n8n. Running continuously in the background.</p>
-      </div>
-
-      <!-- Card 3: Product Catalog -->
-      <div class="card dimmed">
-        <div class="card-label">Catalog</div>
-        <div class="card-title-row">
-          <div class="card-title">Product Catalog</div>
-          <span class="badge badge-soon">Coming Soon</span>
-        </div>
-        <p class="card-desc">Manage product variants, pricing, and availability fed into the AI.</p>
+    <!-- ════════════════════════════════════════════════════════════════
+         Dashboard View
+    ════════════════════════════════════════════════════════════════ -->
+    <div id="view-dashboard" class="view active">
+      <div class="view-header">
+        <div class="view-title">Dashboard</div>
+        <div class="view-sub">Auckland Sales operations at a glance.</div>
+        <div class="view-divider"></div>
       </div>
 
-      <!-- Card 4: Competitor Tracker -->
-      <div class="card dimmed">
-        <div class="card-label">Intelligence</div>
-        <div class="card-title-row">
-          <div class="card-title">Competitor Tracker</div>
-          <span class="badge badge-soon">Coming Soon</span>
+      <div class="grid">
+
+        <!-- Card 1: Market Intelligence -->
+        <div class="card" id="card-market">
+          <div class="card-label">Market Intelligence</div>
+          <div class="card-title">Market Report</div>
+          <p class="card-desc">Generate a full NZ market analysis report — trending products, competitor pricing, and actionable recommendations.</p>
+          <div class="last-run" id="last-run-text">Last run: <strong>Never</strong></div>
+
+          <div class="feedback feedback-success" id="success-msg">
+            <span class="feedback-icon">✓</span>
+            <span id="success-content">Report generated. <a href="#" id="report-link" target="_blank" rel="noopener">View Report →</a></span>
+          </div>
+
+          <div class="feedback feedback-error" id="error-msg">
+            <span class="feedback-icon">✕</span>
+            <span id="error-content">Something went wrong.</span>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="generate-btn" onclick="generateReport()">
+            Generate Report
+          </button>
         </div>
-        <p class="card-desc">Monitor competitor listings and price changes in the NZ market.</p>
+
+        <!-- Card 2: DM Auto-Reply -->
+        <div class="card">
+          <div class="card-label">Automation</div>
+          <div class="card-title-row">
+            <div class="card-title">DM Auto-Reply</div>
+            <span class="badge badge-active"><span class="dot"></span>Active</span>
+          </div>
+          <p class="card-desc">AI-powered Instagram and Facebook DM responses via ManyChat + n8n. Running continuously in the background.</p>
+        </div>
+
+        <!-- Card 3: Product Catalog -->
+        <div class="card dimmed">
+          <div class="card-label">Catalog</div>
+          <div class="card-title-row">
+            <div class="card-title">Product Catalog</div>
+            <span class="badge badge-soon">Coming Soon</span>
+          </div>
+          <p class="card-desc">Manage product variants, pricing, and availability fed into the AI.</p>
+        </div>
+
+        <!-- Card 4: Competitor Tracker -->
+        <div class="card dimmed">
+          <div class="card-label">Intelligence</div>
+          <div class="card-title-row">
+            <div class="card-title">Competitor Tracker</div>
+            <span class="badge badge-soon">Coming Soon</span>
+          </div>
+          <p class="card-desc">Monitor competitor listings and price changes in the NZ market.</p>
+        </div>
+
+        <!-- Card 5: Performance Analytics -->
+        <div class="card dimmed" style="grid-column: 1 / -1;">
+          <div class="card-label">Analytics</div>
+          <div class="card-title-row">
+            <div class="card-title">Performance Analytics</div>
+            <span class="badge badge-soon">Coming Soon</span>
+          </div>
+          <p class="card-desc">DM response rates, conversation metrics, and AI accuracy scores.</p>
+        </div>
+
       </div>
 
-      <!-- Card 5: Performance Analytics -->
-      <div class="card dimmed" style="grid-column: 1 / -1;">
-        <div class="card-label">Analytics</div>
-        <div class="card-title-row">
-          <div class="card-title">Performance Analytics</div>
-          <span class="badge badge-soon">Coming Soon</span>
-        </div>
-        <p class="card-desc">DM response rates, conversation metrics, and AI accuracy scores.</p>
+      <footer class="dash-footer">Auckland Sales Ops · Built by ZRS Dev</footer>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Product Catalog View
+    ════════════════════════════════════════════════════════════════ -->
+    <div id="view-products" class="view">
+      <div class="view-header">
+        <div class="view-title">Product Catalog</div>
+        <div class="view-sub">Manage product variants, pricing, and availability.</div>
+        <div class="view-divider"></div>
       </div>
 
-    </main>
+      <!-- Add / Edit panel (hidden by default) -->
+      <div id="product-form-panel" class="product-form-panel">
+        <div class="pf-title" id="pf-title">Add Product</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label" for="f-sku">SKU</label>
+            <input class="form-input" id="f-sku" type="text" placeholder="e.g. AKL-001" />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-name">Name</label>
+            <input class="form-input" id="f-name" type="text" placeholder="Product name" />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-price">Price (NZD)</label>
+            <input class="form-input" id="f-price" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-status">Stock Status</label>
+            <select class="form-select" id="f-status">
+              <option value="In Stock">In Stock</option>
+              <option value="Low Stock">Low Stock</option>
+              <option value="Out of Stock">Out of Stock</option>
+              <option value="Discontinued">Discontinued</option>
+            </select>
+          </div>
+          <div class="form-field span-full">
+            <label class="form-label" for="f-variants">Variants</label>
+            <input class="form-input" id="f-variants" type="text" placeholder="e.g. Red / Blue, S / M / L" />
+          </div>
+          <div class="form-field span-full">
+            <label class="form-label" for="f-desc">Description</label>
+            <textarea class="form-textarea" id="f-desc" placeholder="Product description…"></textarea>
+          </div>
+          <div class="form-field span-full">
+            <label class="form-label" for="f-notes">Notes</label>
+            <textarea class="form-textarea" id="f-notes" placeholder="Internal notes…"></textarea>
+          </div>
+        </div>
+        <div class="pf-actions">
+          <button class="btn btn-primary" id="pf-save-btn" onclick="saveProduct()">Save Product</button>
+          <button class="btn btn-ghost" onclick="hideProductForm()">Cancel</button>
+          <span class="pf-error" id="pf-error"></span>
+        </div>
+      </div>
 
-    <footer>Auckland Sales Ops · Built by ZRS Dev</footer>
+      <!-- Toolbar -->
+      <div class="catalog-toolbar">
+        <span class="catalog-count" id="catalog-count"></span>
+        <button class="btn btn-primary btn-sm" onclick="showProductForm()">+ Add Product</button>
+      </div>
 
-  </div>
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price (NZD)</th>
+              <th>Variants</th>
+              <th>Stock Status</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody">
+            <tr><td colspan="8"><div class="table-msg">Loading…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-  <script>
-    const WEBHOOK_URL = 'https://n8n.zrsdev.com/webhook/market-report';
+    <!-- ════════════════════════════════════════════════════════════════
+         Business Info View
+    ════════════════════════════════════════════════════════════════ -->
+    <div id="view-business" class="view">
+      <div class="view-header">
+        <div class="view-title">Business Info</div>
+        <div class="view-sub">Store details used by the AI for customer conversations.</div>
+        <div class="view-divider"></div>
+      </div>
 
-    function formatDatetime(date) {
-      return date.toLocaleString('en-NZ', {
-        day: '2-digit', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', hour12: true
-      });
+      <div class="biz-form">
+
+        <div class="biz-section">Store Identity</div>
+
+        <div class="biz-field">
+          <label class="form-label" for="biz-name">Store Name</label>
+          <input class="form-input" id="biz-name" type="text" placeholder="Auckland Sales" />
+        </div>
+        <div class="biz-field">
+          <label class="form-label" for="biz-instagram">Instagram Handle</label>
+          <input class="form-input" id="biz-instagram" type="text" placeholder="@aucklandsales" />
+        </div>
+        <div class="biz-field">
+          <label class="form-label" for="biz-phone">Phone</label>
+          <input class="form-input" id="biz-phone" type="text" placeholder="+64 21 000 0000" />
+        </div>
+        <div class="biz-field">
+          <label class="form-label" for="biz-address">Address</label>
+          <input class="form-input" id="biz-address" type="text" placeholder="Auckland, New Zealand" />
+        </div>
+
+        <div class="biz-section">Customer Policies</div>
+
+        <div class="biz-field">
+          <label class="form-label" for="biz-shipping">Shipping Policy</label>
+          <textarea class="form-textarea" id="biz-shipping" placeholder="e.g. Free shipping on orders over $50 NZD. Standard 3–5 business days."></textarea>
+        </div>
+        <div class="biz-field">
+          <label class="form-label" for="biz-returns">Return Policy</label>
+          <textarea class="form-textarea" id="biz-returns" placeholder="e.g. 14-day returns on unused items in original condition."></textarea>
+        </div>
+        <div class="biz-field">
+          <label class="form-label" for="biz-payment">Payment Methods</label>
+          <input class="form-input" id="biz-payment" type="text" placeholder="e.g. Bank transfer, Credit card, Afterpay" />
+        </div>
+
+        <div class="biz-section">Operations</div>
+
+        <div class="biz-field">
+          <label class="form-label" for="biz-hours">Operating Hours</label>
+          <input class="form-input" id="biz-hours" type="text" placeholder="e.g. Mon–Fri 9am–5pm NZST" />
+        </div>
+
+        <div class="biz-actions">
+          <button class="btn btn-primary" id="biz-save-btn" onclick="saveBusinessInfo()">Save Changes</button>
+          <span class="biz-feedback" id="biz-feedback"></span>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────────────
+  const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const WEBHOOK_URL       = 'https://n8n.zrsdev.com/webhook/market-report';
+
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── View switcher ───────────────────────────────────────────────────────
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelector(`[data-view="${name}"]`).classList.add('active');
+    if (name === 'products') loadProducts();
+    if (name === 'business') loadBusinessInfo();
+  }
+
+  // ── Generate Report (unchanged logic) ──────────────────────────────────
+  function formatDatetime(date) {
+    return date.toLocaleString('en-NZ', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true
+    });
+  }
+
+  function setLastRun(date) {
+    document.getElementById('last-run-text').innerHTML =
+      `Last run: <strong>${formatDatetime(date)}</strong>`;
+  }
+
+  function showReportSuccess(docUrl) {
+    document.getElementById('report-link').href = docUrl || '#';
+    document.getElementById('success-msg').classList.add('show');
+    document.getElementById('error-msg').classList.remove('show');
+  }
+
+  function showReportError(text) {
+    document.getElementById('error-content').textContent = text;
+    document.getElementById('error-msg').classList.add('show');
+    document.getElementById('success-msg').classList.remove('show');
+  }
+
+  function clearFeedback() {
+    document.getElementById('success-msg').classList.remove('show');
+    document.getElementById('error-msg').classList.remove('show');
+  }
+
+  function setButtonState(state) {
+    const btn = document.getElementById('generate-btn');
+    if (state === 'loading') {
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.innerHTML = '<span class="spinner"></span> Generating...';
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.innerHTML = 'Generate Report';
+    }
+  }
+
+  async function generateReport() {
+    clearFeedback();
+    setButtonState('loading');
+    try {
+      const res = await fetch(WEBHOOK_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
+      let data;
+      try { data = await res.json(); } catch { data = {}; }
+      const docUrl = data.viewLink || data.docUrl || data.doc_url || data.url || data.link || data.reportUrl || null;
+      setLastRun(new Date());
+      showReportSuccess(docUrl);
+    } catch (err) {
+      let msg = err.message || 'An unknown error occurred.';
+      if (err instanceof TypeError && /fetch|network|cors/i.test(msg))
+        msg = 'Could not reach the server. Check your network connection or CORS settings.';
+      showReportError(msg);
+    } finally {
+      setTimeout(() => setButtonState('idle'), 3000);
+    }
+  }
+
+  // ── Product Catalog ─────────────────────────────────────────────────────
+  let allProducts = [];
+  let editId      = null;
+
+  function stockPillClass(status) {
+    if (!status) return 'pill-misc';
+    switch (status.toLowerCase()) {
+      case 'in stock':    return 'pill-in';
+      case 'low stock':   return 'pill-low';
+      case 'out of stock': return 'pill-out';
+      default:            return 'pill-misc';
+    }
+  }
+
+  function renderProducts(products) {
+    allProducts = products;
+    const tbody = document.getElementById('products-tbody');
+    const count = document.getElementById('catalog-count');
+    count.textContent = `${products.length} product${products.length !== 1 ? 's' : ''}`;
+
+    if (!products.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="table-msg">
+        <div class="table-msg-icon">📦</div>
+        <div>No products yet. Click <strong>+ Add Product</strong> to get started.</div>
+      </div></td></tr>`;
+      return;
     }
 
-    function setLastRun(date) {
-      const el = document.getElementById('last-run-text');
-      el.innerHTML = `Last run: <strong>${formatDatetime(date)}</strong>`;
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td class="td-sku">${esc(p.sku)}</td>
+        <td class="td-name">${esc(p.name)}</td>
+        <td><div class="td-clamp">${esc(p.description)}</div></td>
+        <td class="td-price">${p.price != null ? '$' + Number(p.price).toFixed(2) : '—'}</td>
+        <td>${esc(p.variants)}</td>
+        <td><span class="stock-pill ${stockPillClass(p.stock_status)}">${esc(p.stock_status)}</span></td>
+        <td><div class="td-clamp">${esc(p.notes)}</div></td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadProducts() {
+    document.getElementById('products-tbody').innerHTML =
+      `<tr><td colspan="8"><div class="table-msg">Loading…</div></td></tr>`;
+    document.getElementById('catalog-count').textContent = '';
+
+    const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('products-tbody').innerHTML =
+        `<tr><td colspan="8"><div class="table-msg" style="color:var(--red)">${esc(error.message)}</div></td></tr>`;
+      return;
     }
 
-    function showSuccess(docUrl) {
-      const msg = document.getElementById('success-msg');
-      const link = document.getElementById('report-link');
-      link.href = docUrl || '#';
-      msg.classList.add('show');
-      document.getElementById('error-msg').classList.remove('show');
+    renderProducts(data);
+  }
+
+  function showProductForm(product) {
+    editId = product ? product.id : null;
+    document.getElementById('pf-title').textContent = product ? 'Edit Product' : 'Add Product';
+    document.getElementById('f-sku').value      = product?.sku || '';
+    document.getElementById('f-name').value     = product?.name || '';
+    document.getElementById('f-price').value    = product?.price ?? '';
+    document.getElementById('f-status').value   = product?.stock_status || 'In Stock';
+    document.getElementById('f-variants').value = product?.variants || '';
+    document.getElementById('f-desc').value     = product?.description || '';
+    document.getElementById('f-notes').value    = product?.notes || '';
+    document.getElementById('pf-error').classList.remove('show');
+    document.getElementById('product-form-panel').classList.add('open');
+    document.getElementById('product-form-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function editProduct(id) {
+    const p = allProducts.find(p => p.id === id);
+    if (p) showProductForm(p);
+  }
+
+  function hideProductForm() {
+    editId = null;
+    document.getElementById('product-form-panel').classList.remove('open');
+  }
+
+  async function saveProduct() {
+    const payload = {
+      sku:          document.getElementById('f-sku').value.trim(),
+      name:         document.getElementById('f-name').value.trim(),
+      price:        document.getElementById('f-price').value !== '' ? parseFloat(document.getElementById('f-price').value) : null,
+      stock_status: document.getElementById('f-status').value,
+      variants:     document.getElementById('f-variants').value.trim(),
+      description:  document.getElementById('f-desc').value.trim(),
+      notes:        document.getElementById('f-notes').value.trim(),
+    };
+
+    const btn = document.getElementById('pf-save-btn');
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+
+    const { error } = editId
+      ? await db.from('products').update(payload).eq('id', editId)
+      : await db.from('products').insert(payload);
+
+    btn.disabled    = false;
+    btn.textContent = 'Save Product';
+
+    if (error) {
+      const el = document.getElementById('pf-error');
+      el.textContent = error.message;
+      el.classList.add('show');
+      return;
     }
 
-    function showError(text) {
-      const msg = document.getElementById('error-msg');
-      document.getElementById('error-content').textContent = text;
-      msg.classList.add('show');
-      document.getElementById('success-msg').classList.remove('show');
+    hideProductForm();
+    loadProducts();
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    const { error } = await db.from('products').delete().eq('id', id);
+    if (error) { alert('Delete failed: ' + error.message); return; }
+    loadProducts();
+  }
+
+  // ── Business Info ───────────────────────────────────────────────────────
+  async function loadBusinessInfo() {
+    const { data, error } = await db.from('business_info').select('*').eq('id', 1).maybeSingle();
+    if (error || !data) return;
+    document.getElementById('biz-name').value     = data.store_name || '';
+    document.getElementById('biz-instagram').value = data.instagram || '';
+    document.getElementById('biz-phone').value    = data.phone || '';
+    document.getElementById('biz-address').value  = data.address || '';
+    document.getElementById('biz-shipping').value = data.shipping_policy || '';
+    document.getElementById('biz-returns').value  = data.return_policy || '';
+    document.getElementById('biz-payment').value  = data.payment_methods || '';
+    document.getElementById('biz-hours').value    = data.operating_hours || '';
+  }
+
+  async function saveBusinessInfo() {
+    const payload = {
+      id:              1,
+      store_name:      document.getElementById('biz-name').value.trim(),
+      instagram:       document.getElementById('biz-instagram').value.trim(),
+      phone:           document.getElementById('biz-phone').value.trim(),
+      address:         document.getElementById('biz-address').value.trim(),
+      shipping_policy: document.getElementById('biz-shipping').value.trim(),
+      return_policy:   document.getElementById('biz-returns').value.trim(),
+      payment_methods: document.getElementById('biz-payment').value.trim(),
+      operating_hours: document.getElementById('biz-hours').value.trim(),
+      updated_at:      new Date().toISOString(),
+    };
+
+    const btn  = document.getElementById('biz-save-btn');
+    const feed = document.getElementById('biz-feedback');
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+    feed.className  = 'biz-feedback';
+
+    const { error } = await db.from('business_info').upsert(payload, { onConflict: 'id' });
+
+    btn.disabled    = false;
+    btn.textContent = 'Save Changes';
+
+    if (error) {
+      feed.textContent = '✕ ' + error.message;
+      feed.style.color = 'var(--red)';
+      feed.classList.add('show');
+    } else {
+      feed.textContent = '✓ Saved';
+      feed.style.color = 'var(--accent)';
+      feed.classList.add('show');
+      setTimeout(() => { feed.className = 'biz-feedback'; }, 3000);
     }
+  }
 
-    function clearFeedback() {
-      document.getElementById('success-msg').classList.remove('show');
-      document.getElementById('error-msg').classList.remove('show');
-    }
-
-    function setButtonState(state) {
-      const btn = document.getElementById('generate-btn');
-      if (state === 'loading') {
-        btn.disabled = true;
-        btn.classList.add('loading');
-        btn.innerHTML = '<span class="spinner"></span> Generating...';
-      } else {
-        btn.disabled = false;
-        btn.classList.remove('loading');
-        btn.innerHTML = 'Generate Report';
-      }
-    }
-
-    async function generateReport() {
-      clearFeedback();
-      setButtonState('loading');
-
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-
-        if (!res.ok) {
-          throw new Error(`Server returned ${res.status} ${res.statusText}`);
-        }
-
-        let data;
-        try {
-          data = await res.json();
-        } catch {
-          data = {};
-        }
-
-        // Accept doc URL from common field names
-        const docUrl = data.viewLink || data.docUrl || data.doc_url || data.url || data.link || data.reportUrl || null;
-
-        setLastRun(new Date());
-        showSuccess(docUrl);
-
-      } catch (err) {
-        let msg = err.message || 'An unknown error occurred.';
-
-        // CORS errors appear as TypeError: Failed to fetch (or similar)
-        if (err instanceof TypeError && /fetch|network|cors/i.test(msg)) {
-          msg = 'Could not reach the server. Check your network connection or CORS settings.';
-        }
-
-        showError(msg);
-      } finally {
-        setTimeout(() => setButtonState('idle'), 3000);
-      }
-    }
-  </script>
+  // ── Utility ─────────────────────────────────────────────────────────────
+  function esc(val) {
+    if (val == null || val === '') return '—';
+    return String(val)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
 </body>
 </html>
