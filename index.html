@@ -1843,16 +1843,16 @@
       const conv = allConversations.find(c => c.id === id);
       if (conv) conv.status = newStatus;
 
-      if (newStatus === 'sold') {
+      if (newStatus === 'sold' && conv) {
         fetch('https://n8n.zrsdev.com/webhook/thank-you-trigger', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            subscriberID: conv.subscriberID,
-            firstName: conv.firstName || 'Customer',
-            firstMessage: conv.firstMessage || ''
+            subscriberID: conv?.subscriberID || id,
+            firstName: conv?.firstName || 'Customer',
+            firstMessage: conv?.firstMessage || ''
           })
-        }).catch(() => {}); // silent fail, never block the UI
+        }).catch((e) => { console.error('Thank you webhook failed:', e); });
       }
 
       const statusCell = document.getElementById('status-cell-' + id);
