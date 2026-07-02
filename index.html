@@ -1841,6 +1841,7 @@
     try {
       await db.collection('conversations').doc(id).update({ status: newStatus });
       const conv = allConversations.find(c => c.id === id);
+      console.log('updateConvStatus called:', { id, newStatus, conv, allConversationsLength: allConversations.length });
       if (conv) conv.status = newStatus;
 
       if (newStatus === 'sold' && conv) {
