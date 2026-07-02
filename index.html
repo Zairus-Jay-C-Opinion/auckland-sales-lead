@@ -1842,6 +1842,19 @@
       await db.collection('conversations').doc(id).update({ status: newStatus });
       const conv = allConversations.find(c => c.id === id);
       if (conv) conv.status = newStatus;
+
+      if (newStatus === 'sold') {
+        fetch('https://n8n.zrsdev.com/webhook/thank-you-trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscriberID: conv.subscriberID,
+            firstName: conv.firstName || 'Customer',
+            firstMessage: conv.firstMessage || ''
+          })
+        }).catch(() => {}); // silent fail, never block the UI
+      }
+
       const statusCell = document.getElementById('status-cell-' + id);
       if (statusCell) statusCell.innerHTML = statusBadgeHtml(newStatus);
       renderAnalyticsStats(allConversations);
