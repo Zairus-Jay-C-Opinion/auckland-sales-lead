@@ -27,7 +27,25 @@
       --red-dim:    rgba(224, 82, 82, 0.12);
       --amber:      #f59e0b;
       --amber-dim:  rgba(245, 158, 11, 0.1);
+      --amber-border: rgba(245, 158, 11, 0.25);
       --topbar-h:   56px;
+
+      /* Analytics status colors */
+      --stat-blue:          #3B82F6;
+      --stat-blue-dim:      rgba(59, 130, 246, 0.12);
+      --stat-blue-border:   rgba(59, 130, 246, 0.25);
+      --stat-orange:        #F97316;
+      --stat-orange-dim:    rgba(249, 115, 22, 0.12);
+      --stat-orange-border: rgba(249, 115, 22, 0.25);
+      --stat-green:         #10B981;
+      --stat-green-dim:     rgba(16, 185, 129, 0.12);
+      --stat-green-border:  rgba(16, 185, 129, 0.25);
+      --stat-red:           #EF4444;
+      --stat-red-dim:       rgba(239, 68, 68, 0.12);
+      --stat-red-border:    rgba(239, 68, 68, 0.25);
+      --stat-grey:          #6B7280;
+      --stat-grey-dim:      rgba(107, 114, 128, 0.12);
+      --stat-grey-border:   rgba(107, 114, 128, 0.25);
     }
 
     html, body {
@@ -669,6 +687,190 @@
     /* Product grid breakpoints */
     @media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 580px)  { .product-grid { grid-template-columns: 1fr; } }
+
+    /* ─── Performance Analytics ─────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px)  { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover { border-color: var(--border2); }
+
+    .stat-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-name { font-size: 11px; color: var(--muted); }
+
+    /* Status badges — shared by stat cards + conversation table */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .status-inquired    { background: var(--stat-blue-dim);   color: var(--stat-blue);   border: 1px solid var(--stat-blue-border); }
+    .status-in-process  { background: var(--amber-dim);       color: var(--amber);       border: 1px solid var(--amber-border); }
+    .status-followed-up { background: var(--stat-orange-dim); color: var(--stat-orange); border: 1px solid var(--stat-orange-border); }
+    .status-sold        { background: var(--stat-green-dim);  color: var(--stat-green);  border: 1px solid var(--stat-green-border); }
+    .status-not-sold     { background: var(--stat-red-dim);   color: var(--stat-red);    border: 1px solid var(--stat-red-border); }
+    .status-no-response { background: var(--stat-grey-dim);   color: var(--stat-grey);   border: 1px solid var(--stat-grey-border); }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(90,100,120,0.15);
+      color: var(--muted2);
+      border: 1px solid rgba(90,100,120,0.2);
+      white-space: nowrap;
+    }
+
+    /* Conversation table */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-bottom: 28px;
+    }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+    .data-table thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      white-space: nowrap;
+    }
+
+    .data-table tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .data-table tbody tr:last-child td { border-bottom: none; }
+
+    .conv-row { cursor: pointer; transition: background 0.15s; }
+    .conv-row:hover { background: rgba(255,255,255,0.03); }
+
+    .conv-detail-row td { background: var(--surface2); }
+
+    .conv-detail {
+      padding: 16px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .conv-detail-field p {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+      margin-top: 5px;
+    }
+
+    .conv-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 12.5px;
+      color: var(--muted2);
+    }
+
+    .conv-detail-meta strong { color: var(--muted); font-weight: 500; }
+
+    .select-sm { padding: 6px 28px 6px 10px; font-size: 12.5px; width: auto; min-width: 150px; }
+
+    .save-flash {
+      font-size: 11px;
+      color: var(--accent);
+      margin-left: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .save-flash.show { opacity: 1; }
+
+    .table-status { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+
+    /* Status breakdown chart — pure CSS bars */
+    .chart-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+
+    .chart-row { display: flex; align-items: center; gap: 12px; }
+
+    .chart-row-label {
+      width: 108px;
+      flex-shrink: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--muted2);
+    }
+
+    .chart-row-track {
+      flex: 1;
+      height: 10px;
+      background: var(--surface2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .chart-row-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+
+    .chart-row-count {
+      width: 30px;
+      text-align: right;
+      flex-shrink: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    @media (max-width: 600px) {
+      .chart-row-label { width: 84px; font-size: 11.5px; }
+      .select-sm { min-width: 130px; }
+    }
   </style>
 </head>
 <body>
@@ -715,6 +917,12 @@
       </svg>
       Business Info
     </li>
+    <li class="nav-item" data-view="analytics" onclick="showView('analytics')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      Performance Analytics
+    </li>
   </ul>
 </div>
 
@@ -750,6 +958,12 @@
           <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
         </svg>
         Business Info
+      </li>
+      <li class="nav-item" data-view="analytics" onclick="showView('analytics')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        Performance Analytics
       </li>
     </ul>
   </nav>
@@ -822,11 +1036,11 @@
         </div>
 
         <!-- Card 5: Performance Analytics -->
-        <div class="card dimmed" style="grid-column: 1 / -1;">
+        <div class="card" style="grid-column: 1 / -1; cursor: pointer;" onclick="showView('analytics')">
           <div class="card-label">Analytics</div>
           <div class="card-title-row">
             <div class="card-title">Performance Analytics</div>
-            <span class="badge badge-soon">Coming Soon</span>
+            <span class="badge badge-active"><span class="dot"></span>Live</span>
           </div>
           <p class="card-desc">DM response rates, conversation metrics, and AI accuracy scores.</p>
         </div>
@@ -983,6 +1197,95 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         Performance Analytics View
+    ══════════════════════════════════════════════════════════════════ -->
+    <div id="view-analytics" class="view">
+      <div class="view-header">
+        <div class="view-title">Performance Analytics</div>
+        <div class="view-sub">DM response rates, conversation metrics, and AI accuracy scores.</div>
+        <div class="view-divider"></div>
+      </div>
+
+      <!-- Section A: Funnel stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--stat-blue); box-shadow: 0 0 6px var(--stat-blue);"></span>
+            <span class="status-badge status-inquired">Inquired</span>
+          </div>
+          <div class="stat-value" id="stat-count-inquired">0</div>
+          <div class="stat-name">Total Inquiries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--amber); box-shadow: 0 0 6px var(--amber);"></span>
+            <span class="status-badge status-in-process">In Process</span>
+          </div>
+          <div class="stat-value" id="stat-count-in_process">0</div>
+          <div class="stat-name">In Process</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--stat-orange); box-shadow: 0 0 6px var(--stat-orange);"></span>
+            <span class="status-badge status-followed-up">Followed Up</span>
+          </div>
+          <div class="stat-value" id="stat-count-followed_up">0</div>
+          <div class="stat-name">Followed Up</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--stat-green); box-shadow: 0 0 6px var(--stat-green);"></span>
+            <span class="status-badge status-sold">Sold</span>
+          </div>
+          <div class="stat-value" id="stat-count-sold">0</div>
+          <div class="stat-name">Sold</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--stat-red); box-shadow: 0 0 6px var(--stat-red);"></span>
+            <span class="status-badge status-not-sold">Not Sold</span>
+          </div>
+          <div class="stat-value" id="stat-count-not_sold">0</div>
+          <div class="stat-name">Not Sold</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="dot" style="background: var(--stat-grey); box-shadow: 0 0 6px var(--stat-grey);"></span>
+            <span class="status-badge status-no-response">No Response</span>
+          </div>
+          <div class="stat-value" id="stat-count-no_response">0</div>
+          <div class="stat-name">No Response</div>
+        </div>
+      </div>
+
+      <!-- Section B: Conversation table -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>First Message</th>
+              <th>Status</th>
+              <th>Platform</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="analytics-tbody">
+            <tr><td colspan="6" class="table-status">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section C: Status breakdown chart -->
+      <div class="card">
+        <div class="card-label">Breakdown</div>
+        <div class="card-title">Status Breakdown</div>
+        <div class="chart-bars" id="analytics-chart"></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1007,6 +1310,15 @@
   const WEBHOOK_URL        = 'https://n8n.zrsdev.com/webhook/market-report';
   const CLOUDINARY_CLOUD   = 'dfomwmsj2';
   const CLOUDINARY_PRESET  = 'auckland-sales-products';
+
+  const STATUS_META = {
+    inquired:    { label: 'Inquired',    cardLabel: 'Total Inquiries', cls: 'status-inquired',    dot: 'var(--stat-blue)' },
+    in_process:  { label: 'In Process',  cardLabel: 'In Process',      cls: 'status-in-process',  dot: 'var(--amber)' },
+    followed_up: { label: 'Followed Up', cardLabel: 'Followed Up',     cls: 'status-followed-up', dot: 'var(--stat-orange)' },
+    sold:        { label: 'Sold',        cardLabel: 'Sold',            cls: 'status-sold',        dot: 'var(--stat-green)' },
+    not_sold:    { label: 'Not Sold',    cardLabel: 'Not Sold',        cls: 'status-not-sold',    dot: 'var(--stat-red)' },
+    no_response: { label: 'No Response', cardLabel: 'No Response',     cls: 'status-no-response', dot: 'var(--stat-grey)' },
+  };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
@@ -1050,6 +1362,7 @@
     closeMobileMenu();
     if (name === 'products') loadProducts();
     if (name === 'business') loadBusinessInfo();
+    if (name === 'analytics') loadAnalytics();
   }
 
   // ── Generate Report (unchanged) ─────────────────────────────────────────
@@ -1384,6 +1697,189 @@
     } finally {
       btn.disabled    = false;
       btn.textContent = 'Save Changes';
+    }
+  }
+
+  // ── Performance Analytics ───────────────────────────────────────────────
+  let allConversations = [];
+
+  function statusBadgeHtml(status) {
+    const meta = STATUS_META[status];
+    if (!meta) return `<span class="status-badge status-no-response">Unknown</span>`;
+    return `<span class="status-badge ${meta.cls}">${meta.label}</span>`;
+  }
+
+  function truncate(str, n) {
+    if (!str) return '';
+    return str.length > n ? str.slice(0, n) + '…' : str;
+  }
+
+  function escRaw(val) {
+    return String(val ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function formatAnalyticsDate(ms) {
+    if (!ms) return '—';
+    const d = new Date(Number(ms));
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  }
+
+  function flashSaved(elId) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.textContent = '✓ Saved';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  function countByStatus(conversations) {
+    const counts = { inquired: 0, in_process: 0, followed_up: 0, sold: 0, not_sold: 0, no_response: 0 };
+    conversations.forEach(c => {
+      if (counts.hasOwnProperty(c.status)) counts[c.status]++;
+    });
+    return counts;
+  }
+
+  function renderAnalyticsStats(conversations) {
+    const counts = countByStatus(conversations);
+    Object.keys(counts).forEach(status => {
+      const el = document.getElementById('stat-count-' + status);
+      if (el) el.textContent = counts[status];
+    });
+  }
+
+  function renderAnalyticsChart(conversations) {
+    const counts = countByStatus(conversations);
+    const max = Math.max(1, ...Object.values(counts));
+    const container = document.getElementById('analytics-chart');
+    container.innerHTML = Object.keys(STATUS_META).map(status => {
+      const meta  = STATUS_META[status];
+      const count = counts[status];
+      const pct   = Math.round((count / max) * 100);
+      return `
+        <div class="chart-row">
+          <div class="chart-row-label">${meta.cardLabel}</div>
+          <div class="chart-row-track"><div class="chart-row-fill" style="width:${pct}%; background:${meta.dot};"></div></div>
+          <div class="chart-row-count">${count}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function conversationRowHtml(c) {
+    const platformLabel = c.platform
+      ? c.platform.charAt(0).toUpperCase() + c.platform.slice(1)
+      : 'Instagram';
+    return `
+      <tr class="conv-row" data-id="${c.id}" onclick="toggleConvDetail(event, '${c.id}')">
+        <td>${esc(c.firstName || 'Customer')}</td>
+        <td>${esc(truncate(c.firstMessage, 60))}</td>
+        <td id="status-cell-${c.id}">${statusBadgeHtml(c.status)}</td>
+        <td><span class="platform-badge">${esc(platformLabel)}</span></td>
+        <td>${formatAnalyticsDate(c.createdAt)}</td>
+        <td class="actions-cell" onclick="event.stopPropagation()">
+          <select class="form-select select-sm" onchange="updateConvStatus('${c.id}', this.value, this)">
+            <option value="">— Change Status —</option>
+            <option value="sold">Mark as Sold</option>
+            <option value="not_sold">Mark as Not Sold</option>
+          </select>
+          <span class="save-flash" id="flash-${c.id}"></span>
+        </td>
+      </tr>
+      <tr class="conv-detail-row" id="detail-${c.id}" style="display:none">
+        <td colspan="6">
+          <div class="conv-detail">
+            <div class="conv-detail-field">
+              <span class="form-label">First Message</span>
+              <p>${escRaw(c.firstMessage) || '—'}</p>
+            </div>
+            <div class="conv-detail-field">
+              <span class="form-label">Last Message</span>
+              <p>${escRaw(c.lastMessage) || '—'}</p>
+            </div>
+            <div class="conv-detail-meta">
+              <span><strong>Last active:</strong> ${formatAnalyticsDate(c.lastMessageAt)}</span>
+              <span><strong>Follow-up sent:</strong> ${c.followUpSentAt ? formatAnalyticsDate(c.followUpSentAt) : 'Not yet'}</span>
+            </div>
+            <div class="conv-detail-field" onclick="event.stopPropagation()">
+              <label class="form-label" for="notes-${c.id}">Notes</label>
+              <textarea class="form-textarea" id="notes-${c.id}" onblur="saveConvNotes('${c.id}', this.value)">${escRaw(c.notes)}</textarea>
+              <span class="save-flash" id="notes-flash-${c.id}"></span>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  function renderAnalyticsTable(conversations) {
+    const tbody = document.getElementById('analytics-tbody');
+    if (!conversations.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="table-status">No conversations yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = conversations.map(conversationRowHtml).join('');
+  }
+
+  function toggleConvDetail(evt, id) {
+    if (evt.target.closest('.actions-cell')) return;
+    const row = document.getElementById('detail-' + id);
+    if (!row) return;
+    const isOpen = row.style.display !== 'none';
+    document.querySelectorAll('.conv-detail-row').forEach(r => r.style.display = 'none');
+    row.style.display = isOpen ? 'none' : 'table-row';
+  }
+
+  async function updateConvStatus(id, newStatus, selectEl) {
+    if (!newStatus) return;
+    selectEl.disabled = true;
+    try {
+      await db.collection('conversations').doc(id).update({ status: newStatus });
+      const conv = allConversations.find(c => c.id === id);
+      if (conv) conv.status = newStatus;
+      const statusCell = document.getElementById('status-cell-' + id);
+      if (statusCell) statusCell.innerHTML = statusBadgeHtml(newStatus);
+      renderAnalyticsStats(allConversations);
+      renderAnalyticsChart(allConversations);
+      flashSaved('flash-' + id);
+    } catch (err) {
+      alert('Failed to update status: ' + err.message);
+    } finally {
+      selectEl.value = '';
+      selectEl.disabled = false;
+    }
+  }
+
+  async function saveConvNotes(id, value) {
+    try {
+      await db.collection('conversations').doc(id).update({ notes: value });
+      const conv = allConversations.find(c => c.id === id);
+      if (conv) conv.notes = value;
+      flashSaved('notes-flash-' + id);
+    } catch (err) {
+      alert('Failed to save notes: ' + err.message);
+    }
+  }
+
+  async function loadAnalytics() {
+    document.getElementById('analytics-tbody').innerHTML =
+      `<tr><td colspan="6" class="table-status">Loading…</td></tr>`;
+    document.getElementById('analytics-chart').innerHTML = '';
+
+    try {
+      const snapshot = await db.collection('conversations').orderBy('createdAt', 'desc').get();
+      allConversations = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAnalyticsStats(allConversations);
+      renderAnalyticsTable(allConversations);
+      renderAnalyticsChart(allConversations);
+    } catch (err) {
+      document.getElementById('analytics-tbody').innerHTML =
+        `<tr><td colspan="6" class="table-status" style="color:var(--red)">${esc(err.message)}</td></tr>`;
     }
   }
 
