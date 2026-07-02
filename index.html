@@ -1320,8 +1320,6 @@
     no_response: { label: 'No Response', cardLabel: 'No Response',     cls: 'status-no-response', dot: 'var(--stat-grey)' },
   };
 
-  console.log('[Auckland Sales Dashboard] build: 2026-07-02T04:55:57Z');
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
@@ -1843,7 +1841,6 @@
     try {
       await db.collection('conversations').doc(id).update({ status: newStatus });
       const conv = allConversations.find(c => c.id === id);
-      console.log('updateConvStatus called:', { id, newStatus, conv, allConversationsLength: allConversations.length });
       if (conv) conv.status = newStatus;
 
       if (newStatus === 'sold' && conv) {
